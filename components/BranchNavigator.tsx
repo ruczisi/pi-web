@@ -244,10 +244,12 @@ export function BranchNavigator({
     onLeafChange(id);
   }, [onLeafChange]);
 
+  const t = useTranslation();
+
   const noBranchReason = !hasSession
-    ? "No active session"
+    ? t.noActiveSession
     : !hasBranch(tree)
-      ? "This session has no branches"
+      ? t.noBranches
       : null;
 
   // Find first meaningful node (skip pure linear prefix)
@@ -386,7 +388,7 @@ export function BranchNavigator({
             </div>
           ) : (
             <div style={{ padding: "10px 16px", fontSize: 12, color: "var(--text-muted)", fontStyle: "italic" }}>
-              {noBranchReason ?? "This session has no branches"}
+              {noBranchReason ?? t.noBranches}
             </div>
           )}
         </div>

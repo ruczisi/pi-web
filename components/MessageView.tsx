@@ -211,7 +211,7 @@ function UserMessageView({ message, entryId, onFork, forking, onNavigate, prevAs
                   <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
                 </svg>
               )}
-              {copied ? "Copied" : "Copy"}
+              {copied ? t.copied : t.copy}
             </button>
           </div>
           {(canFork || canNavigate) && (
@@ -271,7 +271,7 @@ function UserMessageView({ message, entryId, onFork, forking, onNavigate, prevAs
                     <circle cx="6" cy="18" r="3" />
                     <path d="M18 9a9 9 0 0 1-9 9" />
                   </svg>
-                  {forking ? "Creating…" : "New session"}
+                  {forking ? t.creating : t.newSession}
                 </button>
               )}
             </div>
@@ -499,7 +499,7 @@ function AssistantMessageView({
                 <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
               </svg>
             )}
-            {copied ? "Copied" : "Copy"}
+            {copied ? t.copied : t.copy}
           </button>
         )}
         {time && !isStreaming && (

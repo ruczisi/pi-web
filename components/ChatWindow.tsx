@@ -54,6 +54,28 @@ const TYPEWRITER_PHRASES_EN = [
   "rubber-duck with me.",
 ];
 
+// Fallback phrases when translation dict is not yet loaded
+const TYPEWRITER_PHRASES_ZH = [
+  "随时待命。",
+  "随便问。",
+  "一起做点酷的东西。",
+  "探索你的代码库。",
+  "起草一封邮件。",
+  "总结那篇论文。",
+  "规划你的周末。",
+  "用简单的方式解释。",
+  "和我一起结对编程。",
+  "修复那个烦人的 Bug。",
+  "翻译成中文。",
+  "写一首俳句。",
+  "头脑风暴。",
+  "审查我的 Pull Request。",
+  "今晚吃什么？",
+  "发布它。",
+  "让它更美观。",
+  "和我一起橡皮鸭调试。",
+];
+
 function Typewriter({ phrases }: { phrases: string[] }) {
   const [phraseIdx, setPhraseIdx] = useState(() => Math.floor(Math.random() * phrases.length));
   const [text, setText] = useState("");
@@ -198,7 +220,7 @@ export function ChatWindow({
   if (loading) {
     return (
       <div className="flex h-full items-center justify-center text-text-muted">
-        Loading session...
+        {t.loadingSession}
       </div>
     );
   }
@@ -270,7 +292,7 @@ export function ChatWindow({
                 <span style={{ fontSize: 28, fontWeight: 700, letterSpacing: "-0.02em", color: "var(--text)" }}>π</span>
                 <span style={{ fontSize: 22, color: "var(--text)", fontWeight: 700, letterSpacing: "-0.01em" }}>Pi Agent Web</span>
                 <span style={{ fontSize: 14, minWidth: 0, overflow: "hidden", whiteSpace: "nowrap", textOverflow: "ellipsis" }}>
-                  <Typewriter phrases={TYPEWRITER_PHRASES_EN} />
+                  <Typewriter phrases={t.typewriterPhrases?.length ? t.typewriterPhrases : TYPEWRITER_PHRASES_EN} />
                 </span>
               </div>
               <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 2, flexShrink: 0 }}>

@@ -44,8 +44,8 @@ function Toggle({
       disabled={loading}
       title={
         enabled
-          ? "Visible in model prompt — click to disable"
-          : "Hidden from model prompt — click to enable"
+          ? t.visibleInPrompt
+          : t.hiddenFromPrompt
       }
       style={{
         flexShrink: 0,
@@ -312,7 +312,7 @@ function AddSkillPanel({
               flexShrink: 0,
             }}
           >
-            {searching ? "Searching…" : "Search"}
+            {searching ? t.searching : t.search}
           </button>
         </div>
 
@@ -476,10 +476,10 @@ function AddSkillPanel({
                   }}
                 >
                   {isInstalled
-                    ? "✓ Installed"
+                    ? `✓ ${t.installed}`
                     : isInstalling
-                      ? "Installing…"
-                      : "Install"}
+                      ? t.installing
+                      : t.install}
                 </button>
               </div>
             );
@@ -681,7 +681,7 @@ export function SkillsConfig({
                     color: "var(--text-muted)",
                   }}
                 >
-                  Loading…
+                  {t.loading}
                 </div>
               ) : error ? (
                 <div

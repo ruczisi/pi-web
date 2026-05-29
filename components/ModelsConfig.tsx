@@ -511,7 +511,7 @@ function ModelDetail({
   };
   const testSummary = (() => {
     if (testState.phase === "idle") return null;
-    if (testState.phase === "testing") return "Testing model connection...";
+    if (testState.phase === "testing") return t.testModelConnection;
     const meta = [
       testState.latencyMs !== undefined ? `${testState.latencyMs}ms` : null,
       testState.status !== undefined ? `HTTP ${testState.status}` : null,
@@ -615,11 +615,11 @@ function ModelDetail({
                 <polyline points="20 6 9 17 4 12" />
               </svg>
             )}
-            {testState.phase === "testing" ? "Testing…" : testState.phase === "success" ? "OK" : "Test"}
+            {testState.phase === "testing" ? t.testing : testState.phase === "success" ? t.ok : t.test}
           </button>
           <button onClick={onDelete}
             style={{ height: 24, padding: "0 8px", background: "none", border: "1px solid rgba(239,68,68,0.3)", borderRadius: 4, color: "#ef4444", cursor: "pointer", fontSize: 11, boxSizing: "border-box" }}>
-            Remove
+            {t.remove}
           </button>
         </div>
       </div>
@@ -837,7 +837,7 @@ function OAuthDetail({ provider, onRefresh }: { provider: OAuthProvider; onRefre
           </p>
         )}
         {loginState.phase === "connecting" && (
-          <p style={{ margin: 0, fontSize: 12, color: "var(--text-muted)" }}>Opening browser…</p>
+          <p style={{ margin: 0, fontSize: 12, color: "var(--text-muted)" }}>{t.openingBrowser}</p>
         )}
         {loginState.phase === "select" && (
           <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
@@ -934,7 +934,7 @@ function OAuthDetail({ provider, onRefresh }: { provider: OAuthProvider; onRefre
               onClick={handleLogin}
               style={{ padding: "5px 14px", background: "var(--accent)", border: "none", borderRadius: 5, color: "#fff", cursor: "pointer", fontSize: 12, fontWeight: 600 }}
             >
-              {provider.loggedIn ? "Re-login" : "Login"}
+              {provider.loggedIn ? t.reLogin : t.login}
             </button>
             {provider.loggedIn && (
               <button
@@ -1058,7 +1058,7 @@ function ApiKeyDetail({ provider, onRefresh }: { provider: ApiKeyProvider; onRef
                 <polyline points="20 6 9 17 4 12" />
               </svg>
             )}
-            {savedOk ? "Saved" : saving ? "Saving…" : "Save"}
+            {savedOk ? t.saved : saving ? t.saving : t.save}
           </button>
         </div>
       </Field>
@@ -1076,7 +1076,7 @@ function ApiKeyDetail({ provider, onRefresh }: { provider: ApiKeyProvider; onRef
             cursor: removing ? "not-allowed" : "pointer", fontSize: 12,
           }}
         >
-          {removing ? "Removing…" : "Disconnect"}
+          {removing ? t.removing : t.disconnect}
         </button>
       )}
     </div>
@@ -1474,7 +1474,7 @@ export function ModelsConfig({ onClose }: { onClose: () => void }) {
 
               {/* Custom providers */}
               {loading ? (
-                <div style={{ padding: "10px 8px", fontSize: 12, color: "var(--text-muted)" }}>Loading…</div>
+                <div style={{ padding: "10px 8px", fontSize: 12, color: "var(--text-muted)" }}>{t.loading}</div>
               ) : providers.map(([pName, pData]) => {
                 const isProviderSelected = selection?.type === "provider" && selection.name === pName;
                 const models = pData.models ?? [];

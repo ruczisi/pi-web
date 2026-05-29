@@ -58,6 +58,8 @@ export interface Dict {
   open: string;
   cancel: string;
   loading: string;
+  loadingFiles: string;
+  empty: string;
   noSessionsFound: string;
   explorer: string;
   refreshExplorer: string;
@@ -77,6 +79,8 @@ export interface Dict {
   copied: string;
   copy: string;
   copyMessage: string;
+  creating: string;
+  newSession: string;
   htmlPreview: string;
   editFromHere: string;
   creatingNewSession: string;
@@ -87,6 +91,8 @@ export interface Dict {
   disableWrap: string;
   enableWrap: string;
   close: string;
+  failedToLoadImage: string;
+  failedToLoadAudio: string;
 
   // ModelsConfig
   connected: string;
@@ -101,6 +107,11 @@ export interface Dict {
   disconnect: string;
   addProvider: string;
   searchProviders: string;
+  saved: string;
+  saving: string;
+  removing: string;
+  openingBrowser: string;
+  searching: string;
   displayName: string;
   apiKey: string;
   hideApiKey: string;
@@ -147,6 +158,8 @@ export interface Dict {
   installing: string;
   installed: string;
   skillsDesc: string;
+  visibleInPrompt: string;
+  hiddenFromPrompt: string;
 
   // ToolPanel
   off: string;
@@ -177,6 +190,8 @@ export interface Dict {
   // BranchNavigator
   user: string;
   assistant: string;
+  noActiveSession: string;
+  noBranches: string;
 
   // Typewriter phrases
   readyWhenYouAre: string;
@@ -197,6 +212,9 @@ export interface Dict {
   shipIt: string;
   makeItPretty: string;
   rubberDuckWithMe: string;
+
+  // Typewriter phrases array (ordered)
+  typewriterPhrases: string[];
 
   // App metadata
   appTitle: string;
@@ -262,6 +280,8 @@ const en: Dict = {
   open: "Open",
   cancel: "Cancel",
   loading: "Loading…",
+  loadingFiles: "Loading files…",
+  empty: "empty",
   noSessionsFound: "No sessions found",
   explorer: "Explorer",
   refreshExplorer: "Refresh explorer",
@@ -280,6 +300,8 @@ const en: Dict = {
   copied: "Copied",
   copy: "Copy",
   copyMessage: "Copy message",
+  creating: "Creating…",
+  newSession: "New session",
   htmlPreview: "HTML preview",
   editFromHere: "Edit from here — branches within this session",
   creatingNewSession: "Creating new session…",
@@ -290,6 +312,8 @@ const en: Dict = {
   disableWrap: "Disable word wrap",
   enableWrap: "Enable word wrap",
   close: "Close",
+  failedToLoadImage: "Failed to load image",
+  failedToLoadAudio: "Failed to load audio",
 
   connected: "Connected",
   failed: "Failed",
@@ -303,6 +327,11 @@ const en: Dict = {
   disconnect: "Disconnect",
   addProvider: "Add provider",
   searchProviders: "Search providers…",
+  saved: "Saved",
+  saving: "Saving…",
+  removing: "Removing…",
+  openingBrowser: "Opening browser…",
+  searching: "Searching…",
   displayName: "Display name",
   apiKey: "API Key",
   hideApiKey: "Hide API key",
@@ -348,6 +377,8 @@ const en: Dict = {
   installing: "Installing…",
   installed: "Installed",
   skillsDesc: "Manage skills for this project",
+  visibleInPrompt: "Visible in model prompt — click to disable",
+  hiddenFromPrompt: "Hidden from model prompt — click to enable",
 
   off: "Off",
   low: "Low",
@@ -373,6 +404,8 @@ const en: Dict = {
 
   user: "U",
   assistant: "A",
+  noActiveSession: "No active session",
+  noBranches: "This session has no branches",
 
   readyWhenYouAre: "ready when you are.",
   askMeAnything: "ask me anything.",
@@ -384,7 +417,7 @@ const en: Dict = {
   explainItLikeImFive: "explain it like I'm five.",
   pairProgramWithMe: "pair-program with me.",
   fixThatPeskyBug: "fix that pesky bug.",
-  translateToChinese: "translate to Chinese.",
+  translateToChinese: "translate to 中文.",
   writeAHaiku: "write a haiku.",
   brainstormIdeas: "brainstorm ideas.",
   reviewMyPullRequest: "review my pull request.",
@@ -392,6 +425,27 @@ const en: Dict = {
   shipIt: "ship it.",
   makeItPretty: "make it pretty.",
   rubberDuckWithMe: "rubber-duck with me.",
+
+  typewriterPhrases: [
+    "ready when you are.",
+    "ask me anything.",
+    "let's build something cool.",
+    "explore your codebase.",
+    "draft an email.",
+    "summarize that paper.",
+    "plan your weekend.",
+    "explain it like I'm five.",
+    "pair-program with me.",
+    "fix that pesky bug.",
+    "translate to 中文.",
+    "write a haiku.",
+    "brainstorm ideas.",
+    "review my pull request.",
+    "what should we cook tonight?",
+    "ship it.",
+    "make it pretty.",
+    "rubber-duck with me.",
+  ],
 
   appTitle: "Pi Agent Web",
   appDescription: "Pi Coding Agent Web Interface",
@@ -456,6 +510,8 @@ const zh: Dict = {
   open: "打开",
   cancel: "取消",
   loading: "加载中…",
+  loadingFiles: "加载文件中…",
+  empty: "空",
   noSessionsFound: "未找到会话",
   explorer: "资源管理器",
   refreshExplorer: "刷新资源管理器",
@@ -474,6 +530,8 @@ const zh: Dict = {
   copied: "已复制",
   copy: "复制",
   copyMessage: "复制消息",
+  creating: "创建中…",
+  newSession: "新建会话",
   htmlPreview: "HTML 预览",
   editFromHere: "从此处编辑 — 在当前会话内创建分支",
   creatingNewSession: "创建新会话中…",
@@ -484,6 +542,8 @@ const zh: Dict = {
   disableWrap: "禁用自动换行",
   enableWrap: "启用自动换行",
   close: "关闭",
+  failedToLoadImage: "加载图片失败",
+  failedToLoadAudio: "加载音频失败",
 
   connected: "已连接",
   failed: "失败",
@@ -497,6 +557,11 @@ const zh: Dict = {
   disconnect: "断开连接",
   addProvider: "添加提供商",
   searchProviders: "搜索提供商…",
+  saved: "已保存",
+  saving: "保存中…",
+  removing: "移除中…",
+  openingBrowser: "正在打开浏览器…",
+  searching: "搜索中…",
   displayName: "显示名称",
   apiKey: "API 密钥",
   hideApiKey: "隐藏 API 密钥",
@@ -542,6 +607,8 @@ const zh: Dict = {
   installing: "安装中…",
   installed: "已安装",
   skillsDesc: "管理此项目的技能",
+  visibleInPrompt: "在模型提示中可见 — 点击禁用",
+  hiddenFromPrompt: "在模型提示中隐藏 — 点击启用",
 
   off: "关闭",
   low: "低",
@@ -567,6 +634,8 @@ const zh: Dict = {
 
   user: "用户",
   assistant: "助手",
+  noActiveSession: "无活动会话",
+  noBranches: "此会话没有分支",
 
   readyWhenYouAre: "随时待命。",
   askMeAnything: "随便问。",
@@ -586,6 +655,27 @@ const zh: Dict = {
   shipIt: "发布它。",
   makeItPretty: "让它更美观。",
   rubberDuckWithMe: "和我一起橡皮鸭调试。",
+
+  typewriterPhrases: [
+    "随时待命。",
+    "随便问。",
+    "一起做点酷的东西。",
+    "探索你的代码库。",
+    "起草一封邮件。",
+    "总结那篇论文。",
+    "规划你的周末。",
+    "用简单的方式解释。",
+    "和我一起结对编程。",
+    "修复那个烦人的 Bug。",
+    "翻译成中文。",
+    "写一首俳句。",
+    "头脑风暴。",
+    "审查我的 Pull Request。",
+    "今晚吃什么？",
+    "发布它。",
+    "让它更美观。",
+    "和我一起橡皮鸭调试。",
+  ],
 
   appTitle: "Pi Agent Web",
   appDescription: "Pi 编码助手 Web 界面",

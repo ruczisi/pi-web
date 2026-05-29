@@ -643,7 +643,7 @@ export function SessionSidebar({
       <div style={{ flex: explorerOpen && (selectedCwdProp || selectedCwd) ? "1 1 0" : "1 1 auto", overflowY: "auto", padding: "0", minHeight: 80 }}>
         {loading && (
           <div style={{ padding: "16px 14px", color: "var(--text-muted)", fontSize: 12 }}>
-            Loading...
+            {t.loading}
           </div>
         )}
         {error && (

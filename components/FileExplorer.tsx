@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback, useEffect, useRef } from "react";
+import { useTranslation } from "@/lib/i18n";
 import { getFileIcon, FolderIcon } from "./FileIcons";
 import { encodeFilePathForApi, getRelativeFilePath, joinFilePath } from "@/lib/file-paths";
 
@@ -199,7 +200,7 @@ function TreeNode({
           ))}
           {children.length === 0 && loaded && (
             <div style={{ paddingLeft: 8 + (depth + 1) * 14, fontSize: 11, color: "var(--text-dim)", height: 22, display: "flex", alignItems: "center" }}>
-              empty
+              {t.empty}
             </div>
           )}
         </div>
@@ -209,6 +210,7 @@ function TreeNode({
 }
 
 export function FileExplorer({ cwd, onOpenFile, refreshKey, onAtMention }: Props) {
+  const t = useTranslation();
   const [roots, setRoots] = useState<FileNode[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -241,7 +243,7 @@ export function FileExplorer({ cwd, onOpenFile, refreshKey, onAtMention }: Props
   if (loading) {
     return (
       <div style={{ padding: "8px 12px", fontSize: 11, color: "var(--text-dim)" }}>
-        Loading files...
+        {t.loadingFiles}
       </div>
     );
   }

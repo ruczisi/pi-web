@@ -385,7 +385,7 @@ function ImageViewer({ filePath, cwd }: { filePath: string; cwd?: string }) {
               const img = e.currentTarget;
               setNaturalSize({ w: img.naturalWidth, h: img.naturalHeight });
             }}
-            onError={() => setError("Failed to load image")}
+            onError={() => setError(t.failedToLoadImage)}
             style={{
               maxWidth: "100%",
               maxHeight: "100%",
@@ -516,7 +516,7 @@ function AudioViewer({ filePath, cwd }: { filePath: string; cwd?: string }) {
             preload="metadata"
             src={src}
             onLoadedMetadata={(e) => setDuration(e.currentTarget.duration)}
-            onError={() => setError("Failed to load audio")}
+            onError={() => setError(t.failedToLoadAudio)}
             style={{ width: "100%" }}
           />
         </div>
@@ -628,7 +628,7 @@ function TextFileViewer({ filePath, cwd }: Props) {
   if (loading) {
     return (
       <div style={{ height: "100%", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--text-muted)", fontSize: 13 }}>
-        Loading...
+        {t.loading}
       </div>
     );
   }
