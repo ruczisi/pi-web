@@ -1,4 +1,5 @@
 "use client";
+import { useTranslation } from "@/lib/i18n";
 
 import { useState } from "react";
 import { getFileIcon } from "./FileIcons";
@@ -16,7 +17,9 @@ interface Props {
   onCloseTab: (id: string) => void;
 }
 
-export function TabBar({ tabs, activeTabId, onSelectTab, onCloseTab }: Props) {
+export function TabBar({
+  tabs, activeTabId, onSelectTab, onCloseTab }: Props) {
+  const t = useTranslation();
   const [hoveredClose, setHoveredClose] = useState<string | null>(null);
 
   return (
@@ -86,7 +89,7 @@ export function TabBar({ tabs, activeTabId, onSelectTab, onCloseTab }: Props) {
                 flexShrink: 0,
                 transition: "background 0.1s, color 0.1s",
               }}
-              title="Close"
+              title={t.close}
             >
               <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
                 <line x1="2" y1="2" x2="8" y2="8" />

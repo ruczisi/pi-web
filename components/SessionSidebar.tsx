@@ -1,4 +1,5 @@
 "use client";
+import { useTranslation, type Dict } from "@/lib/i18n";
 
 import { useEffect, useState, useCallback, useRef } from "react";
 import type { SessionInfo } from "@/lib/types";
@@ -19,17 +20,17 @@ interface Props {
   onAtMention?: (relativePath: string) => void;
 }
 
-function formatRelativeTime(dateStr: string): string {
+function formatRelativeTime(dateStr: string, t: Dict): string {
   const date = new Date(dateStr);
   const now = new Date();
   const diff = now.getTime() - date.getTime();
   const mins = Math.floor(diff / 60000);
   const hours = Math.floor(diff / 3600000);
   const days = Math.floor(diff / 86400000);
-  if (mins < 1) return "just now";
-  if (mins < 60) return `${mins}m ago`;
-  if (hours < 24) return `${hours}h ago`;
-  if (days < 7) return `${days}d ago`;
+  if (mins < 1) return t.justNow;
+  if (mins < 60) return t.minutesAgo(mins);
+  if (hours < 24) return t.hoursAgo(hours);
+  if (days < 7) return t.daysAgo(days);
   return date.toLocaleDateString();
 }
 
@@ -196,7 +197,9 @@ function PiAgentTitle() {
   );
 }
 
-export function SessionSidebar({ selectedSessionId, onSelectSession, onNewSession, initialSessionId, onInitialRestoreDone, refreshKey, onSessionDeleted, selectedCwd: selectedCwdProp, onCwdChange, onOpenFile, explorerRefreshKey, onAtMention }: Props) {
+export function SessionSidebar({
+  selectedSessionId, onSelectSession, onNewSession, initialSessionId, onInitialRestoreDone, refreshKey, onSessionDeleted, selectedCwd: selectedCwdProp, onCwdChange, onOpenFile, explorerRefreshKey, onAtMention }: Props) {
+  const t = useTranslation();
   const [allSessions, setAllSessions] = useState<SessionInfo[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -365,7 +368,7 @@ export function SessionSidebar({ selectedSessionId, onSelectSession, onNewSessio
                 flexShrink: 0,
                 transition: "background 0.12s, color 0.12s, border-color 0.12s",
               }}
-              title={selectedCwd ? `New session in ${selectedCwd}` : "Select a project first"}
+              title={selectedCwd ? t.newSessionIn(selectedCwd) : t.selectProjectFirst}
               onMouseEnter={(e) => {
                 if (!selectedCwd) return;
                 e.currentTarget.style.background = "var(--bg-selected)";
@@ -410,7 +413,7 @@ export function SessionSidebar({ selectedSessionId, onSelectSession, onNewSessio
                 e.currentTarget.style.color = "var(--text-muted)";
                 e.currentTarget.style.borderColor = "var(--border)";
               }}
-              title="Refresh"
+              title={t.refresh}
             >
               {sessionRefreshDone ? (
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#4ade80" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -457,7 +460,7 @@ export function SessionSidebar({ selectedSessionId, onSelectSession, onNewSessio
               }}
               title={selectedCwd ?? ""}
             >
-              {selectedCwd ? shortenCwd(selectedCwd, homeDir) : (initialSessionId && !restoredRef.current ? "" : "Select project…")}
+              {selectedCwd ? shortenCwd(selectedCwd, homeDir) : (initialSessionId && !restoredRef.current ? "" : t.selectProject)}
             </span>
           </button>
 
@@ -537,7 +540,7 @@ export function SessionSidebar({ selectedSessionId, onSelectSession, onNewSessio
                   <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" strokeWidth="1.1" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
                     <path d="M1 3A1 1 0 0 1 2 2H4L5 3.5H8.5a.5.5 0 0 1 .5.5v4a.5.5 0 0 1-.5.5h-7A.5.5 0 0 1 1 8V3Z" />
                   </svg>
-                  <span>Use default directory</span>
+                  <span>{t.useDefaultDir}</span>
                 </button>
               )}
 
@@ -567,7 +570,7 @@ export function SessionSidebar({ selectedSessionId, onSelectSession, onNewSessio
                     <line x1="5" y1="1" x2="5" y2="9" />
                     <line x1="1" y1="5" x2="9" y2="5" />
                   </svg>
-                  <span>Custom path…</span>
+                  <span>{t.customPath}</span>
                 </button>
               ) : (
                 <div style={{ padding: "6px 8px", borderTop: recentCwds.length > 0 ? "none" : undefined }}>
@@ -582,7 +585,7 @@ export function SessionSidebar({ selectedSessionId, onSelectSession, onNewSessio
                         setCustomPathValue("");
                       }
                     }}
-                    placeholder="/path/to/project"
+                    placeholder={t.pathPlaceholder}
                     style={{
                       width: "100%",
                       fontSize: 11,
@@ -650,7 +653,7 @@ export function SessionSidebar({ selectedSessionId, onSelectSession, onNewSessio
         )}
         {!loading && !error && filteredSessions.length === 0 && (
           <div style={{ padding: "16px 14px", color: "var(--text-muted)", fontSize: 12 }}>
-            No sessions found
+            {t.noSessionsFound}
           </div>
         )}
         {sessionTree.map((node) => (
@@ -717,7 +720,7 @@ export function SessionSidebar({ selectedSessionId, onSelectSession, onNewSessio
                 if (explorerRefreshTimerRef.current) clearTimeout(explorerRefreshTimerRef.current);
                 explorerRefreshTimerRef.current = setTimeout(() => setExplorerRefreshDone(false), 2000);
               }}
-              title="Refresh explorer"
+              title={t.refreshExplorer}
               style={{
                 display: "flex", alignItems: "center", justifyContent: "center",
                 width: 26, height: 26, padding: 0, marginRight: 6,
@@ -844,6 +847,7 @@ function SessionItem({
   collapsed?: boolean;
   onToggleCollapse?: () => void;
 }) {
+  const t = useTranslation();
   const [hovered, setHovered] = useState(false);
   const [renaming, setRenaming] = useState(false);
   const [renameValue, setRenameValue] = useState("");
@@ -929,7 +933,7 @@ function SessionItem({
         /* ── Delete confirmation: same height, two flat buttons ── */
         <>
           <div style={{ flex: 1, minWidth: 0, fontSize: 12, color: "var(--text)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-            Delete <span style={{ fontWeight: 600 }}>&ldquo;{title.slice(0, 22)}{title.length > 22 ? "…" : ""}&rdquo;</span>?
+            {t.deleteConfirm(title)} <span style={{ fontWeight: 600 }}>&ldquo;{title.slice(0, 22)}{title.length > 22 ? "…" : ""}&rdquo;</span>?
           </div>
           <div style={{ display: "flex", gap: 5, flexShrink: 0 }}>
             <button
@@ -1018,7 +1022,7 @@ function SessionItem({
               {title}
             </div>
             <div style={{ marginTop: 2, display: "flex", gap: 8, color: "var(--text-dim)", fontSize: 11 }}>
-              <span title={session.modified}>{formatRelativeTime(session.modified)}</span>
+              <span title={session.modified}>{formatRelativeTime(session.modified, t)}</span>
               <span>{session.messageCount} msgs</span>
             </div>
           </div>
@@ -1027,7 +1031,7 @@ function SessionItem({
           {hasChildren && (
             <button
               onClick={(e) => { e.stopPropagation(); onToggleCollapse?.(); }}
-              title={collapsed ? "Expand forks" : "Collapse forks"}
+              title={collapsed ? t.expandForks : t.collapseForks}
               style={{
                 display: "flex", alignItems: "center", justifyContent: "center",
                 width: 20, height: 20, padding: 0, flexShrink: 0,

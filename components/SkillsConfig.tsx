@@ -1,4 +1,5 @@
 "use client";
+import { useTranslation } from "@/lib/i18n";
 
 import { useState, useEffect, useCallback, useRef } from "react";
 import type { SkillSearchResult } from "@/app/api/skills/search/route";
@@ -186,6 +187,7 @@ function AddSkillPanel({
   cwd: string;
   onInstalled: () => void;
 }) {
+  const t = useTranslation();
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<SkillSearchResult[]>([]);
   const [searching, setSearching] = useState(false);
@@ -220,7 +222,7 @@ function AddSkillPanel({
         return;
       }
       setResults(d.results ?? []);
-      if ((d.results ?? []).length === 0) setSearchError("No skills found");
+      if ((d.results ?? []).length === 0) setSearchError(t.noSkillsFound);
     } catch (e) {
       setSearchError(String(e));
     } finally {
@@ -283,7 +285,7 @@ function AddSkillPanel({
             onKeyDown={(e) => {
               if (e.key === "Enter") search(query);
             }}
-            placeholder="e.g. react, testing, deploy"
+            placeholder={t.searchSkills}
             style={{
               flex: 1,
               padding: "7px 10px",
@@ -513,6 +515,7 @@ export function SkillsConfig({
   cwd: string;
   onClose: () => void;
 }) {
+  const t = useTranslation();
   const [skills, setSkills] = useState<Skill[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

@@ -1,4 +1,5 @@
 "use client";
+import { useTranslation } from "@/lib/i18n";
 
 import { useState, useCallback, useMemo, useRef, useEffect } from "react";
 import type { SessionEntry, SessionTreeNode } from "@/lib/types";
@@ -85,6 +86,7 @@ interface TreeNodeProps {
 }
 
 function TreeNodeView({ node, activePathIds, depth, isLast, parentLines, onSelect }: TreeNodeProps) {
+  const t = useTranslation();
   const { node: rep, skipped } = compress(node);
   const isActive = activePathIds.has(rep.entry.id);
   const isOnPath = activePathIds.has(node.entry.id) || activePathIds.has(rep.entry.id);
@@ -169,7 +171,7 @@ function TreeNodeView({ node, activePathIds, depth, isLast, parentLines, onSelec
             flexShrink: 0,
             lineHeight: "16px",
           }}>
-            {role === "user" ? "U" : "A"}
+            {role === "user" ? t.user : t.assistant}
           </span>
         )}
 
@@ -211,7 +213,9 @@ function TreeNodeView({ node, activePathIds, depth, isLast, parentLines, onSelec
   );
 }
 
-export function BranchNavigator({ tree, activeLeafId, onLeafChange, inline, containerRef, open: openProp, onToggle, hasSession }: Props) {
+export function BranchNavigator({
+  tree, activeLeafId, onLeafChange, inline, containerRef, open: openProp, onToggle, hasSession }: Props) {
+  const t = useTranslation();
   const [openInternal, setOpenInternal] = useState(false);
   const open = openProp !== undefined ? openProp : openInternal;
   const btnRef = useRef<HTMLButtonElement>(null);

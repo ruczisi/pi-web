@@ -1,4 +1,5 @@
 "use client";
+import { useTranslation } from "@/lib/i18n";
 
 import { useEffect, useState, useRef, useCallback } from "react";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
@@ -116,6 +117,7 @@ function diffLines(oldLines: string[], newLines: string[]): DiffLine[] {
 }
 
 function DiffView({ oldContent, newContent }: { oldContent: string; newContent: string; language: string }) {
+  const t = useTranslation();
   const oldLines = oldContent.split("\n");
   const newLines = newContent.split("\n");
   const diff = diffLines(oldLines, newLines);
@@ -271,6 +273,7 @@ function DiffView({ oldContent, newContent }: { oldContent: string; newContent: 
 }
 
 function ImageViewer({ filePath, cwd }: { filePath: string; cwd?: string }) {
+  const t = useTranslation();
   const [watching, setWatching] = useState(false);
   const [bust, setBust] = useState(0);
   const [size, setSize] = useState<number | null>(null);
@@ -340,7 +343,7 @@ function ImageViewer({ filePath, cwd }: { filePath: string; cwd?: string }) {
         {naturalSize && <span>{naturalSize.w} × {naturalSize.h}</span>}
         {formatSizeStr && <span>{formatSizeStr}</span>}
         <span
-          title={watching ? "Live sync active" : "Not watching"}
+          title={watching ? t.liveSyncActive : t.notWatching}
           style={{ display: "flex", alignItems: "center", gap: 4, color: watching ? "#4ade80" : "var(--text-dim)" }}
         >
           <span
@@ -405,6 +408,7 @@ function formatDuration(seconds: number): string {
 }
 
 function AudioViewer({ filePath, cwd }: { filePath: string; cwd?: string }) {
+  const t = useTranslation();
   const [watching, setWatching] = useState(false);
   const [bust, setBust] = useState(0);
   const [size, setSize] = useState<number | null>(null);
@@ -474,7 +478,7 @@ function AudioViewer({ filePath, cwd }: { filePath: string; cwd?: string }) {
         {duration != null && <span>{formatDuration(duration)}</span>}
         {size != null && <span>{formatSize(size)}</span>}
         <span
-          title={watching ? "Live sync active" : "Not watching"}
+          title={watching ? t.liveSyncActive : t.notWatching}
           style={{ display: "flex", alignItems: "center", gap: 4, color: watching ? "#4ade80" : "var(--text-dim)" }}
         >
           <span
@@ -521,7 +525,9 @@ function AudioViewer({ filePath, cwd }: { filePath: string; cwd?: string }) {
   );
 }
 
-export function FileViewer({ filePath, cwd }: Props) {
+export function FileViewer({
+  filePath, cwd }: Props) {
+  const t = useTranslation();
   if (isImagePath(filePath)) {
     return <ImageViewer filePath={filePath} cwd={cwd} />;
   }
@@ -532,6 +538,7 @@ export function FileViewer({ filePath, cwd }: Props) {
 }
 
 function TextFileViewer({ filePath, cwd }: Props) {
+  const t = useTranslation();
   const { isDark } = useTheme();
   const [data, setData] = useState<FileData | null>(null);
   const [prevContent, setPrevContent] = useState<string | null>(null);
@@ -666,7 +673,7 @@ function TextFileViewer({ filePath, cwd }: Props) {
 
         {/* Live watch indicator */}
         <span
-          title={watching ? "Live sync active" : "Not watching"}
+          title={watching ? t.liveSyncActive : t.notWatching}
           style={{ display: "flex", alignItems: "center", gap: 4, color: watching ? "#4ade80" : "var(--text-dim)" }}
         >
           <span
@@ -714,7 +721,7 @@ function TextFileViewer({ filePath, cwd }: Props) {
         {viewMode === "source" && !previewMode && (
           <button
             onClick={() => setWrapLines((v) => !v)}
-            title={wrapLines ? "Disable word wrap" : "Enable word wrap"}
+            title={wrapLines ? t.disableWrap : t.enableWrap}
             style={{
               padding: "2px 8px", fontSize: 11, cursor: "pointer",
               background: wrapLines ? "var(--bg-selected)" : "var(--bg-hover)",

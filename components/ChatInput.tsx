@@ -1,4 +1,5 @@
 "use client";
+import { useTranslation } from "@/lib/i18n";
 
 import React, { useRef, useState, useCallback, useEffect, useImperativeHandle, forwardRef, KeyboardEvent } from "react";
 
@@ -66,6 +67,7 @@ export const ChatInput = forwardRef<ChatInputHandle, Props>(function ChatInput({
   retryInfo,
   soundEnabled, onSoundToggle,
 }: Props, ref) {
+  const t = useTranslation();
   const [value, setValue] = useState("");
   const [modelDropdownOpen, setModelDropdownOpen] = useState(false);
   const [modelDropdownRect, setModelDropdownRect] = useState<{ top: number; left: number; width: number } | null>(null);
@@ -353,11 +355,9 @@ export const ChatInput = forwardRef<ChatInputHandle, Props>(function ChatInput({
             onKeyDown={handleKeyDown}
             onInput={handleInput}
             onPaste={handlePaste}
-            placeholder={
-              isStreaming && (onSteer || onFollowUp)
-                ? "Steer 立即注入 / Follow-up 排队…"
-                : isStreaming ? "Agent is running…"
-                : "Message…"
+            placeholder={isStreaming && (onSteer || onFollowUp) ? t.steer + " / " + t.followUp + "…"
+                : isStreaming ? t.agentIsRunning
+                : t.messagePlaceholder
             }
             rows={1}
             style={{
@@ -382,7 +382,7 @@ export const ChatInput = forwardRef<ChatInputHandle, Props>(function ChatInput({
                 <button
                   onClick={() => sendQueued("steer")}
                   disabled={!value.trim() && !attachedImages.length}
-                  title="打断 Agent 当前运行，立即注入消息"
+                  title={t.steerDesc}
                   style={{
                     display: "flex", alignItems: "center", gap: 5,
                     padding: "7px 12px",
@@ -405,7 +405,7 @@ export const ChatInput = forwardRef<ChatInputHandle, Props>(function ChatInput({
                 <button
                   onClick={() => sendQueued("followup")}
                   disabled={!value.trim() && !attachedImages.length}
-                  title="在 Agent 完成后排队发送"
+                  title={t.followUpDesc}
                   style={{
                     display: "flex", alignItems: "center", gap: 5,
                     padding: "7px 12px",
@@ -464,7 +464,7 @@ export const ChatInput = forwardRef<ChatInputHandle, Props>(function ChatInput({
             <button
               onClick={() => fileInputRef.current?.click()}
               disabled={isStreaming}
-              title="Attach image"
+              title={t.attachImage}
               style={{
                 flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center",
                 width: 32, height: 32, padding: 0,
@@ -604,7 +604,7 @@ export const ChatInput = forwardRef<ChatInputHandle, Props>(function ChatInput({
                 <button
                   onClick={() => !isStreaming && setThinkingDropdownOpen((v) => !v)}
                   disabled={isStreaming}
-                  title="切换推理强度"
+                  title={t.thinkingLevel}
                   style={{
                     display: "flex", alignItems: "center", gap: 5,
                     padding: "8px 12px",
@@ -694,7 +694,7 @@ export const ChatInput = forwardRef<ChatInputHandle, Props>(function ChatInput({
                 <button
                   onClick={() => !isStreaming && setToolDropdownOpen((v) => !v)}
                   disabled={isStreaming}
-                  title="切换工具预设"
+                  title={t.toolPreset}
                   style={{
                     display: "flex", alignItems: "center", gap: 5,
                     padding: "8px 12px",
@@ -801,15 +801,15 @@ export const ChatInput = forwardRef<ChatInputHandle, Props>(function ChatInput({
                     e.currentTarget.style.background = isCompacting ? "rgba(239,68,68,0.08)" : "none";
                     e.currentTarget.style.color = isCompacting ? "#ef4444" : "var(--text-muted)";
                   }}
-                  title={isCompacting ? "停止压缩" : "压缩上下文"}
+                  title={isCompacting ? t.abortCompactDesc : t.compactDesc}
                 >
                   {isCompacting ? (
-                    <><svg width="10" height="10" viewBox="0 0 10 10" fill="none"><rect x="2" y="2" width="6" height="6" rx="1" fill="currentColor" /></svg>Compacting…</>
+                    <><svg width="10" height="10" viewBox="0 0 10 10" fill="none"><rect x="2" y="2" width="6" height="6" rx="1" fill="currentColor" /></svg>{t.compacting}</>
                   ) : (
                     <><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                       <polyline points="4 14 10 14 10 20" /><polyline points="20 10 14 10 14 4" />
                       <line x1="10" y1="14" x2="3" y2="21" /><line x1="21" y1="3" x2="14" y2="10" />
-                    </svg>Compact</>
+                    </svg>{t.compact}</>
                   )}
                 </button>
               </div>
@@ -818,7 +818,7 @@ export const ChatInput = forwardRef<ChatInputHandle, Props>(function ChatInput({
             {isStreaming && (
               <button
                 onClick={onAbort}
-                title="停止 Agent"
+                title={t.stop}
                 style={{
                   display: "flex", alignItems: "center", gap: 6,
                   padding: "8px 14px",
@@ -845,7 +845,7 @@ export const ChatInput = forwardRef<ChatInputHandle, Props>(function ChatInput({
             {onSoundToggle !== undefined && (
               <button
                 onClick={onSoundToggle}
-                title={soundEnabled ? "关闭完成提示音" : "开启完成提示音"}
+                title={soundEnabled ? t.soundOffDesc : t.soundOnDesc}
                 style={{
                   display: "flex", alignItems: "center", justifyContent: "center",
                   width: 32, height: 32, padding: 0,

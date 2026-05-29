@@ -1,4 +1,5 @@
 "use client";
+import { useTranslation } from "@/lib/i18n";
 
 import { useEffect, useRef } from "react";
 
@@ -14,6 +15,7 @@ export const PRESET_DEFAULT: string[] = ["read", "bash", "edit", "write"];
 export const PRESET_FULL: string[] = ["bash", "read", "edit", "write", "grep", "find", "ls"];
 
 export function getPresetFromTools(tools: ToolEntry[]): ToolPreset {
+  const t = useTranslation();
   const active = tools.filter(t => t.active).map(t => t.name).sort().join(",");
   if (active === "") return "none";
   if (active === [...PRESET_DEFAULT].sort().join(",")) return "default";
@@ -27,15 +29,15 @@ interface Props {
   onClose: () => void;
 }
 
-const PRESETS: { id: ToolPreset; label: string; desc: string; tools: string[] }[] = [
-  { id: "none",    label: "Off",  desc: "No tools",                                tools: PRESET_NONE },
-  { id: "default", label: "Low",  desc: "read · bash · edit · write",              tools: PRESET_DEFAULT },
-  { id: "full",    label: "High", desc: "read · bash · edit · write · grep · find · ls", tools: PRESET_FULL },
-];
-
 export function ToolPanel({ tools, onPreset, onClose }: Props) {
+  const t = useTranslation();
   const panelRef = useRef<HTMLDivElement>(null);
   const current = getPresetFromTools(tools);
+  const PRESETS: { id: ToolPreset; label: string; desc: string; tools: string[] }[] = [
+    { id: "none",    label: t.off,  desc: t.noTools,                                tools: PRESET_NONE },
+    { id: "default", label: t.low,  desc: t.presetDefault,              tools: PRESET_DEFAULT },
+    { id: "full",    label: t.high, desc: t.presetFull, tools: PRESET_FULL },
+  ];
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {
