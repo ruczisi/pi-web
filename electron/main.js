@@ -1,4 +1,4 @@
-const { app, BrowserWindow, dialog } = require("electron");
+const { app, BrowserWindow, dialog, Tray, Menu } = require("electron");
 const { spawn } = require("child_process");
 const path = require("path");
 const fs = require("fs");
@@ -75,6 +75,7 @@ const url = `http://localhost:${port}`;
 let mainWindow = null;
 let serverProcess = null;
 let windowCreated = false;
+let tray = null;
 
 // ===== 创建窗口 =====
 function createWindow() {
@@ -90,13 +91,14 @@ function createWindow() {
     height: 900,
     minWidth: 800,
     minHeight: 600,
+    title: "Pi Agent Web",
+    show: true,
+    backgroundColor: "#0f0f0f",
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
+      spellcheck: false,
     },
-    title: "Pi Agent Web",
-    show: true,                    // 立即显示，不等待 ready-to-show
-    backgroundColor: "#0f0f0f",    // 避免白屏闪烁
   });
 
   log("Loading URL:", url);
@@ -125,6 +127,15 @@ function createWindow() {
     log(`[Renderer ${levels[level] || level}]`, message);
   });
 
+  // 点击关闭按钮时最小化到托盘，而不是退出
+  mainWindow.on("close", (event) => {
+    if (!app.isQuiting) {
+      event.preventDefault();
+      mainWindow.hide();
+      log("Window hidden to tray");
+    }
+  });
+
   mainWindow.on("closed", () => {
     log("Window closed");
     mainWindow = null;
@@ -132,6 +143,41 @@ function createWindow() {
 
   // 开发时可取消注释下面这行打开 DevTools
   // mainWindow.webContents.openDevTools();
+}
+
+// ===== 创建系统托盘 =====
+function createTray() {
+  tray = new Tray(path.join(__dirname, "..", "public", "window.svg"));
+  const contextMenu = Menu.buildFromTemplate([
+    {
+      label: "显示窗口",
+      click: () => {
+        if (mainWindow) {
+          mainWindow.show();
+          mainWindow.focus();
+        }
+      },
+    },
+    {
+      label: "退出",
+      click: () => {
+        app.isQuiting = true;
+        app.quit();
+      },
+    },
+  ]);
+  tray.setToolTip("Pi Agent Web");
+  tray.setContextMenu(contextMenu);
+  tray.on("click", () => {
+    if (mainWindow) {
+      if (mainWindow.isVisible()) {
+        mainWindow.hide();
+      } else {
+        mainWindow.show();
+        mainWindow.focus();
+      }
+    }
+  });
 }
 
 // ===== 启动 Next.js 服务器 =====
@@ -194,9 +240,26 @@ function startServer() {
   }, 15000);
 }
 
+// ===== 单实例锁定 =====
+const gotTheLock = app.requestSingleInstanceLock();
+if (!gotTheLock) {
+  log("Another instance is already running, quitting...");
+  app.quit();
+} else {
+  app.on("second-instance", () => {
+    log("Second instance detected, focusing existing window");
+    if (mainWindow) {
+      if (mainWindow.isMinimized()) mainWindow.restore();
+      mainWindow.show();
+      mainWindow.focus();
+    }
+  });
+}
+
 // ===== Electron 生命周期 =====
 app.whenReady().then(() => {
   log("Electron app ready");
+  createTray();
   startServer();
 });
 
