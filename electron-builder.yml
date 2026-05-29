@@ -1,0 +1,23 @@
+appId: com.agegr.pi-web
+productName: Pi Agent Web
+directories:
+  output: release
+files:
+  - electron/**/*
+  - package.json
+  - node.exe
+extraResources:
+  - from: .next
+    to: app/.next
+  - from: public
+    to: app/public
+  - from: next.config.ts
+    to: app/next.config.ts
+  - from: package.json
+    to: app/package.json
+asar: false
+win:
+  target:
+    - target: portable
+      arch:
+        - x64

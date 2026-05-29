@@ -28,16 +28,18 @@ try {
   }
 }
 
-const { values: cliArgs } = parseArgs({
+const { values: cliArgs, positionals } = parseArgs({
   options: {
     port:     { type: "string", short: "p" },
     hostname: { type: "string", short: "H" },
+    foreground: { type: "boolean", short: "f" },
   },
   strict: false,
 });
 
 const port     = cliArgs.port     ?? process.env.PORT     ?? "30141";
 const hostname = cliArgs.hostname ?? process.env.HOSTNAME ?? null;
+const foreground = cliArgs.foreground ?? positionals?.includes("--foreground") ?? positionals?.includes("-f") ?? false;
 
 if (!fs.existsSync(nextDir)) {
   console.error("Build artifacts not found. Please report this issue.");
@@ -47,27 +49,50 @@ if (!fs.existsSync(nextDir)) {
 const nextArgs = ["start", "-p", port];
 if (hostname) nextArgs.push("-H", hostname);
 
-// Always run next's JS entry with node directly — avoids .bin symlink issues
-// and path-with-spaces problems on Windows when shell: true is used.
-const child = spawn(process.execPath, [nextBin, ...nextArgs], {
-  cwd: pkgDir,
-  stdio: ["inherit", "pipe", "inherit"],
-  env: { ...process.env },
-});
-
-let browserOpened = false;
 const url = `http://${hostname ?? "localhost"}:${port}`;
 
-child.stdout.on("data", (chunk) => {
-  const text = chunk.toString();
-  process.stdout.write(text);
-  if (!browserOpened && text.includes("Ready")) {
-    browserOpened = true;
-    const isWindows = process.platform === "win32";
-    const isMac = process.platform === "darwin";
-    const openCmd = isWindows ? "start" : isMac ? "open" : "xdg-open";
-    spawn(openCmd, [url], { shell: isWindows, stdio: "ignore", detached: true }).unref();
-  }
-});
+function openBrowser() {
+  const isWindows = process.platform === "win32";
+  const isMac = process.platform === "darwin";
+  const openCmd = isWindows ? "start" : isMac ? "open" : "xdg-open";
+  spawn(openCmd, [url], { shell: isWindows, stdio: "ignore", detached: true }).unref();
+}
 
-child.on("exit", (code) => process.exit(code ?? 0));
+if (foreground) {
+  // Foreground mode — block the terminal (legacy behavior)
+  let browserOpened = false;
+  const child = spawn(process.execPath, [nextBin, ...nextArgs], {
+    cwd: pkgDir,
+    stdio: ["inherit", "pipe", "inherit"],
+    env: { ...process.env },
+  });
+  child.stdout.on("data", (chunk) => {
+    const text = chunk.toString();
+    process.stdout.write(text);
+    if (!browserOpened && text.includes("Ready")) {
+      browserOpened = true;
+      openBrowser();
+    }
+  });
+  child.on("exit", (code) => process.exit(code ?? 0));
+} else {
+  // Background mode — detach, ignore stdio, print URL and exit
+  const out = fs.openSync(path.join(pkgDir, ".next", "pi-web.out.log"), "a");
+  const err = fs.openSync(path.join(pkgDir, ".next", "pi-web.err.log"), "a");
+
+  const child = spawn(process.execPath, [nextBin, ...nextArgs], {
+    cwd: pkgDir,
+    stdio: ["ignore", out, err],
+    env: { ...process.env },
+    detached: true,
+  });
+  child.unref();
+
+  // Open browser after a short delay (Next.js usually ready within 3s)
+  setTimeout(() => openBrowser(), 1500);
+
+  console.log(`Pi Agent Web running at ${url}  (PID ${child.pid})`);
+  console.log(`Logs: .next/pi-web.out.log  .next/pi-web.err.log`);
+  console.log(`Stop: taskkill /PID ${child.pid} /F   (Windows)  or  kill ${child.pid}   (Unix)`);
+  process.exit(0);
+}
