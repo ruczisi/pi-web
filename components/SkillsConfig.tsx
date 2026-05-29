@@ -38,6 +38,7 @@ function Toggle({
   loading: boolean;
   onToggle: () => void;
 }) {
+  const t = useTranslation();
   return (
     <button
       onClick={onToggle}

@@ -244,8 +244,6 @@ export function BranchNavigator({
     onLeafChange(id);
   }, [onLeafChange]);
 
-  const t = useTranslation();
-
   const noBranchReason = !hasSession
     ? t.noActiveSession
     : !hasBranch(tree)

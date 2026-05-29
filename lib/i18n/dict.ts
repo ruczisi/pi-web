@@ -107,6 +107,7 @@ export interface Dict {
   disconnect: string;
   addProvider: string;
   searchProviders: string;
+  search: string;
   saved: string;
   saving: string;
   removing: string;
@@ -327,6 +328,7 @@ const en: Dict = {
   disconnect: "Disconnect",
   addProvider: "Add provider",
   searchProviders: "Search providers…",
+  search: "Search",
   saved: "Saved",
   saving: "Saving…",
   removing: "Removing…",
@@ -557,6 +559,7 @@ const zh: Dict = {
   disconnect: "断开连接",
   addProvider: "添加提供商",
   searchProviders: "搜索提供商…",
+  search: "搜索",
   saved: "已保存",
   saving: "保存中…",
   removing: "移除中…",
