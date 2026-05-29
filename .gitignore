@@ -40,3 +40,17 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 .factory
+
+# OMC / AI assistant
+.omc/
+
+# build artifacts / distribution
+*.exe
+node.exe
+dist/
+release/
+
+# logs
+*.log
+pi-web.out.log
+pi-web.err.log

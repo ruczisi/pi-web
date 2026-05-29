@@ -16,12 +16,16 @@
     "next.config.ts",
     "package.json"
   ],
+  "main": "electron/main.js",
   "scripts": {
     "dev": "next dev -p 30141",
     "build": "next build --webpack",
     "start": "next start -p 30141",
     "lint": "eslint .",
-    "release": "npm version patch --no-git-tag-version && npm run build && npm publish --access public"
+    "release": "npm version patch --no-git-tag-version && npm run build && npm publish --access public",
+    "electron": "npm run build && electron .",
+    "electron:pack": "npm run build && electron-builder --win portable",
+    "dist": "npm run build && electron-builder --win portable"
   },
   "dependencies": {
     "@earendil-works/pi-ai": "^0.75.5",
@@ -40,6 +44,8 @@
     "@types/node": "^25",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "electron": "^42.3.0",
+    "electron-builder": "^25.1.8",
     "eslint": "^9",
     "eslint-config-next": "16.2.1",
     "postcss": "^8",
