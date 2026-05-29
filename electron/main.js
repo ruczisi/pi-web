@@ -147,7 +147,15 @@ function createWindow() {
 
 // ===== 创建系统托盘 =====
 function createTray() {
-  tray = new Tray(path.join(__dirname, "..", "public", "window.svg"));
+  // Windows 不支持 SVG 托盘图标，使用 PNG
+  const iconName = process.platform === "win32" ? "window.png" : "window.svg";
+  const iconPath = path.join(__dirname, "..", "public", iconName);
+  try {
+    tray = new Tray(iconPath);
+  } catch (err) {
+    logError("Failed to create tray icon:", err.message);
+    return;
+  }
   const contextMenu = Menu.buildFromTemplate([
     {
       label: "显示窗口",
