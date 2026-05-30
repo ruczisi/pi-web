@@ -5,7 +5,6 @@ directories:
 files:
   - electron/**/*
   - package.json
-  - node.exe
 extraResources:
   - from: .next
     to: app/.next
