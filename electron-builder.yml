@@ -5,21 +5,12 @@ directories:
 files:
   - electron/**/*
   - package.json
-extraResources:
-  - from: .next
-    to: app/.next
-  - from: public
-    to: app/public
-  - from: next.config.ts
-    to: app/next.config.ts
-  - from: package.json
-    to: app/package.json
-asar: true
-asarUnpack:
   - .next/**/*
-  - node_modules/next/dist/bin/next
   - public/**/*
   - next.config.ts
+asar: true
+asarUnpack:
+  - node_modules/next/dist/bin/next
 win:
   target:
     - target: portable
