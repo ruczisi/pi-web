@@ -1,123 +1,123 @@
-# Electron 打包踩坑记录
+# Electron 打包指南
 
 > 项目：pi-web  
-> 记录日期：2026-05-30  
-> 适用版本：v0.6.12
+> 更新日期：2026-05-30  
+> 适用版本：v0.6.12+
 
 ---
 
-## 一、项目背景
+## 一、环境要求
 
-本项目基于 Next.js + Electron 构建桌面应用。打包流程为：
-
-```
-npm run build          # Next.js 生产构建
-npx electron-builder   # Electron 打包
-```
-
-目标平台：Windows (x64)  
-目标产物：可直接分发的 zip 压缩包
+- Windows 10/11 (x64)
+- Node.js 18+
+- Git
 
 ---
 
-## 二、踩坑记录
+## 二、打包命令
 
-### 坑 1：NSIS portable 单文件打包卡住
+```bash
+# 1. 安装依赖
+npm install
 
-**现象**：`electron-builder --win portable` 执行到 NSIS 编译阶段后无响应，进程不再输出任何日志，也不退出。
+# 2. Next.js 生产构建
+npm run build
 
-**根因分析**：
-
-1. 配置中 `asar: false`，禁用 asar 后 electron-builder 需要直接处理数万个零散文件
-2. 每次重新打包时，Windows 文件锁定机制导致 `d3dcompiler_47.dll` 等文件无法被覆盖
-3. NSIS 编译器在处理大量零散文件时容易内存溢出或死锁
-
-**错误日志**：
-
-```
-• building target=portable file=release\Pi Agent Web 0.6.12.exe archs=x64
-# ← 此后永久卡住，无后续输出
+# 3. Electron 打包（输出 zip）
+npx electron-builder --win zip
 ```
 
-**解决方案**：
+**产物路径**：`release/Pi Agent Web-{version}-win.zip`
 
-放弃 `portable` target，改用 `zip` target：
+---
+
+## 三、关键配置说明
+
+### 3.1 为什么用 `zip` target 而不是 `portable`
 
 ```yaml
 # electron-builder.yml
 win:
   target:
-    - target: zip   # ← 替代 portable
+    - target: zip    # ✅ 推荐
       arch:
         - x64
 ```
 
-`zip` target 直接将 `win-unpacked` 目录压缩为 zip，完全绕过 NSIS，打包稳定且速度快。
+| target | 说明 | 是否推荐 |
+|--------|------|----------|
+| `zip` | 直接压缩 `win-unpacked` 目录 | ✅ 稳定、快速 |
+| `portable` | 使用 NSIS 编译为单文件 exe | ❌ 在大量零散文件场景下容易卡死 |
 
----
+**原因**：`portable` 依赖 NSIS 编译器处理数万个零散文件，容易触发内存问题或死锁。`zip` 直接压缩，完全绕过 NSIS。
 
-### 坑 2：Windows 托盘图标不支持 SVG 格式
+### 3.2 为什么保持 `asar: false`
 
-**现象**：打包后的 exe 双击运行后，任务管理器显示进程存在，但没有任何窗口弹出。
+```yaml
+# electron-builder.yml
+asar: false    # ✅ 必须保持 false
+```
 
-**排查过程**：
+| 模式 | 说明 | 本项目是否可用 |
+|------|------|----------------|
+| `asar: false` | 文件直接暴露在 `resources/app/` | ✅ 可用 |
+| `asar: true` | 文件打包进 `app.asar` 归档 | ❌ 不可用（见下方注意事项） |
 
-1. 查看 `%TEMP%/pi-agent-web-logs/main-*.log` 日志
-2. 发现错误：`Failed to load image from path '...\window.svg'`
-3. 该异常发生在 `createTray()` 中，且为同步异常，直接中断了 `startServer()` 的执行
+**不可用的原因**：本项目 `package.json` 顶层存在 `"files"` 字段（npm publish 白名单），electron-builder v25.1.8 在 asar 模式下可能误读该字段，导致应用文件（`package.json`、`electron/` 等）无法正确打入 asar，仅 `node_modules` 被打入。
 
-**根因**：Windows 系统托盘（Tray）仅支持 PNG / ICO 格式，不支持 SVG。
+### 3.3 `extraResources` 的作用
 
-**解决方案**：
+```yaml
+extraResources:
+  - from: .next
+    to: app/.next
+  - from: public
+    to: app/public
+  - from: next.config.ts
+    to: app/next.config.ts
+  - from: package.json
+    to: app/package.json
+```
 
-1. 生成 PNG 格式的图标文件 `public/window.png`
-2. `main.js` 中根据平台自动选择图标格式：
+Next.js 构建产物（`.next`、`public`）和配置文件需要通过 `extraResources` 复制到 `resources/app/` 目录，否则 Next.js 服务器无法找到构建产物。
+
+### 3.4 Windows 托盘图标格式
+
+`electron/main.js` 中已实现平台自动选择：
 
 ```js
 const iconName = process.platform === "win32" ? "window.png" : "window.svg";
-const iconPath = path.join(__dirname, "..", "public", iconName);
-try {
-  tray = new Tray(iconPath);
-} catch (err) {
-  logError("Failed to create tray icon:", err.message);
-  return;
-}
 ```
 
-3. 为 `createTray()` 添加 `try-catch`，防止图标加载失败中断整个应用启动流程
+**注意**：Windows 托盘不支持 SVG，必须使用 PNG。项目已提供 `public/window.png`，无需额外处理。
 
 ---
 
-### 坑 3：asar 模式下 files 配置不生效（未解决，已回退）
+## 四、常见问题
 
-**现象**：尝试启用 `asar: true` 解决文件锁定问题时，`app.asar` 中只有 `node_modules`，`package.json`、`electron/` 等应用文件全部缺失。
+### Q1：打包时提示 `d3dcompiler_47.dll: Access is denied`
 
-**错误日志**：
+**原因**：上一次运行的 Electron 进程未退出，锁定了文件。  
+**解决**：
 
+```powershell
+# 杀掉残留进程后重新打包
+Get-Process | Where-Object { $_.ProcessName -match "Pi Agent Web|electron" } | Stop-Process -Force
 ```
-⨯ Application "package.json" in the "...\app.asar" does not exist.
-  Seems like a wrong configuration.
-```
 
-**排查过程**：
+### Q2：打包后 exe 运行无界面
 
-1. 使用 `npx asar list app.asar` 检查内容 → 48,662 个文件全在 `node_modules` 下
-2. 检查 `resources/app/` 目录 → 文件确实存在（来自 `extraResources`）
-3. 但 asar 打包后这些文件全部消失
+**原因**：Windows 托盘图标加载失败（SVG 格式不支持），同步异常中断了启动流程。  
+**解决**：确认 `public/window.png` 存在，且 `main.js` 中使用了平台判断逻辑。
 
-**尝试过的修复（均无效）**：
+### Q3：asar 模式报错 `package.json does not exist in app.asar`
 
-| 尝试 | 结果 |
-|------|------|
-| 移除不存在的 `node.exe` 从 `files` | 仍报错 |
-| 把 `extraResources` 合并到 `files` | 仍报错 |
-| 配置 `asarUnpack` 保留关键文件 | 仍报错 |
-
-**结论**：electron-builder v25.1.8 在本项目的特定配置组合下，asar 打包逻辑存在异常。由于耗时过长且反复失败，决定**回退 `asar: false`，改用 zip target 作为最终方案**。
+**原因**：electron-builder v25.1.8 在特定 `package.json` 配置组合下 asar 打包异常。  
+**解决**：保持 `asar: false`，不要尝试启用 asar。
 
 ---
 
-## 三、最终可用配置
+## 五、完整配置参考
 
 ```yaml
 # electron-builder.yml
@@ -148,38 +148,12 @@ win:
 
 ---
 
-## 四、打包命令
+## 六、验证清单
 
-```bash
-# 1. Next.js 构建
-npm run build
+解压 zip 后运行 `Pi Agent Web.exe`，确认：
 
-# 2. Electron 打包（输出 zip）
-npx electron-builder --win zip
-
-# 产物路径：release/Pi Agent Web-{version}-win.zip
-```
-
----
-
-## 五、验证清单
-
-打包完成后，解压 zip 并运行验证：
-
-- [ ] `Pi Agent Web.exe` 可正常启动
 - [ ] 窗口正常显示
 - [ ] 系统托盘图标正常（Windows 右下角）
-- [ ] Next.js 服务器正常启动（查看日志 `%TEMP%/pi-agent-web-logs/`）
-- [ ] 关闭窗口后最小化到托盘（不退出进程）
-- [ ] 托盘右键菜单「退出」可彻底关闭程序
-
----
-
-## 六、相关文件
-
-| 文件 | 说明 |
-|------|------|
-| `electron/main.js` | 主进程入口，含路径查找、服务器启动、托盘逻辑 |
-| `electron-builder.yml` | 打包配置 |
-| `public/window.png` | Windows 托盘图标（PNG 格式） |
-| `public/window.svg` | macOS/Linux 托盘图标（SVG 格式） |
+- [ ] Next.js 服务器正常启动（日志路径：`%TEMP%/pi-agent-web-logs/`）
+- [ ] 关闭窗口后最小化到托盘（不退出）
+- [ ] 托盘右键「退出」可彻底关闭程序
